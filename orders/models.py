@@ -2,7 +2,6 @@ from django.db import models
 from product.models import Item
 from customer.models import Customer
 
-
 class Order(models.Model):
     ref_number = models.IntegerField(null=False)
     desc = models.TextField(null=True)
@@ -11,7 +10,14 @@ class Order(models.Model):
 
     def __str__(self) -> str:
         return '{} - {}'.format(self.id, self.ref_number)
-
+    
+    # inorder to calculate the total amount
+    def calculate_total_amount(self):
+        total_amount = sum(
+            i.calculate_item_total_amount()
+            for i in self.order_items.all()
+        )
+        return total_amount
 
 
 class OrderItem(models.Model):
@@ -23,13 +29,13 @@ class OrderItem(models.Model):
     def __str__(self) -> str:
         return '{} - {}'.format(self.order.id, self.item.item_name)
     
-    # inorder to calculate the total amount
-    def calculate_total_amount(self):
-        total_amount = sum(
-            i.quantity * i.item.rate - (i.discount or 0)
-            for i in self.order.order_items.all()
-        )
-        return total_amount
+    def calculate_item_total_amount(self):
+        total = self.quantity * self.item.rate
+        discount = float((self.discount / 100)*total)
+        return total-discount
+
+    
+    
 
     
 
