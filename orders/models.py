@@ -25,6 +25,7 @@ class OrderItem(models.Model):
     quantity=models.PositiveIntegerField(default=1)
     discount= models.FloatField(null=True)
     rate = models.FloatField(null=False)
+    uom=models.CharField(max_length=99, null=True)
     order = models.ForeignKey(Order, on_delete=models.CASCADE)
 
     def __str__(self) -> str:
