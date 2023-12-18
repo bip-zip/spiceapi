@@ -1,14 +1,7 @@
 from django.db import models
+from product.models import Item
+from customer.models import Customer
 
-class Customer(models.Model):
-    name = models.CharField(null=False, max_length=99)
-    email = models.EmailField(null=True, blank=True)
-    contact = models.CharField(null=False, max_length=10)
-    created_on = models.DateTimeField(auto_now=True)
-
-    def __str__(self) -> str:
-        return self.name
-    
 
 class Order(models.Model):
     ref_number = models.IntegerField(null=False)
@@ -18,18 +11,22 @@ class Order(models.Model):
 
     def __str__(self) -> str:
         return '{} - {}'.format(self.id, self.ref_number)
-    
-    
+
+
+
 class OrderItem(models.Model):
-    item_name = models.CharField(null=False, max_length = 200)
+    item = models.ForeignKey(Item, on_delete=models.CASCADE)
     quantity=models.PositiveIntegerField(default=1)
     discount= models.FloatField(null=True)
-    rate = models.FloatField(null=False)
-    uom=models.CharField(max_length=99, null=True)
     order = models.ForeignKey(Order, on_delete=models.CASCADE)
 
     def __str__(self) -> str:
-        return '{} - {}'.format(self.order.id, self.item_name)
+        return '{} - {}'.format(self.order.id, self.item.item_name)
+    
+    # inorder to calculate the total amount
+    def calculate_total_amount(self):
+        total_amount = sum(item.quantity * item.rate - (item.discount or 0) for item in self.orderitem_set.all())
+        return total_amount
 
     
 
