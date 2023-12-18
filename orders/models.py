@@ -18,14 +18,17 @@ class OrderItem(models.Model):
     item = models.ForeignKey(Item, on_delete=models.CASCADE)
     quantity=models.PositiveIntegerField(default=1)
     discount= models.FloatField(null=True)
-    order = models.ForeignKey(Order, on_delete=models.CASCADE)
+    order = models.ForeignKey(Order, on_delete=models.CASCADE,  related_name='order_items')
 
     def __str__(self) -> str:
         return '{} - {}'.format(self.order.id, self.item.item_name)
     
     # inorder to calculate the total amount
     def calculate_total_amount(self):
-        total_amount = sum(item.quantity * item.rate - (item.discount or 0) for item in self.orderitem_set.all())
+        total_amount = sum(
+            i.quantity * i.item.rate - (i.discount or 0)
+            for i in self.order.order_items.all()
+        )
         return total_amount
 
     

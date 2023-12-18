@@ -1,15 +1,9 @@
 from django.urls import path
-from rest_framework.routers import DefaultRouter
+from .views import OrderListCreateGenericView, OrderRetrieveUpdateDestroyGenericView
 
 app_name='orders'
 
-# # for viewsets
-# router = DefaultRouter()
-# router.register(
-
-    
-# )
-
 urlpatterns = [
-
+    path('', OrderListCreateGenericView.as_view(), name='order-list-create'),
+    path('<int:pk>', OrderRetrieveUpdateDestroyGenericView.as_view(), name='order-retrieve-update-destroy'),
 ]
