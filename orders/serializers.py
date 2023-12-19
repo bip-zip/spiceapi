@@ -2,19 +2,46 @@ from rest_framework import serializers
 from customer.serializers import CustomerSerializer
 from product.serializers import ItemSerializer
 from .models import OrderItem, Order
+from product.models import Item
 
 class OrderItemSerializer(serializers.ModelSerializer):
-    item = ItemSerializer()
+    item = ItemSerializer(read_only=True)  # the ItemSerializer for read-only operations
+    item_id = serializers.PrimaryKeyRelatedField(queryset=Item.objects.all(), source='item', write_only=True)
     amount = serializers.SerializerMethodField()
+
+    class Meta:
+        model = OrderItem
+        fields = ['id', 'order', 'item', 'item_id', 'quantity', 'discount', 'amount']
 
     def get_amount(self, obj):
         return obj.calculate_item_total_amount()
 
+
+
+class CreateOrderItemSerializer(serializers.ModelSerializer):
+    item_id = serializers.PrimaryKeyRelatedField(queryset=Item.objects.all(), source='item', write_only=True)
+    amount = serializers.SerializerMethodField()
+
     class Meta:
         model = OrderItem
-        fields = ['id', 'item', 'quantity', 'discount','amount']
+        fields = ['id', 'order', 'item_id', 'quantity', 'discount', 'amount']
 
-    
+    def get_amount(self, obj):
+        return obj.calculate_item_total_amount()
+
+
+    def create(self, validated_data):
+        item_id = validated_data.get('item')
+        try:
+            item = Item.objects.get(pk=item_id.id)
+            print(item)
+        except Item.DoesNotExist:
+            raise serializers.ValidationError("Item with specified ID does not exist.")
+        
+        validated_data.pop('item')
+        order_item = OrderItem.objects.create(item=item, **validated_data)
+        return order_item
+
 
 class OrderSerializer(serializers.ModelSerializer):
     customer = CustomerSerializer()

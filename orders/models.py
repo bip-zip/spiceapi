@@ -9,7 +9,7 @@ class Order(models.Model):
     customer = models.ForeignKey(Customer, on_delete=models.CASCADE)
 
     def __str__(self) -> str:
-        return '{} - {}'.format(self.id, self.ref_number)
+        return 'Order No. {} of Customer : {}'.format(self.id, self.customer.name)
     
     # inorder to calculate the total amount
     def calculate_total_amount(self):
