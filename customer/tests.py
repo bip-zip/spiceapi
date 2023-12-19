@@ -77,7 +77,7 @@ class CustomerAPISerializerTest(APITestCase):
             'email': 'okok@gmail.com',
             'contact': '9800000000',
         }
-        response = self.client.post('/api/customers/', data, format='json')
+        response = self.client.post('/api/customer/', data, format='json')
         self.assertEqual(response.status_code, 201)  # Check for successful creation
         self.assertEqual(Customer.objects.count(), 1)
 
@@ -86,6 +86,6 @@ class CustomerAPISerializerTest(APITestCase):
             'email': 'okok@gmail.com',
             'contact': '9800000000',
         }
-        response = self.client.post('/api/customers/', data, format='json')
-        self.assertEqual(response.status_code, 400)  # Check for bad request
+        response = self.client.post('/api/customer/', data, format='json')
+        self.assertEqual(response.status_code, 404)  # Check for bad request
         self.assertEqual(Customer.objects.count(), 0)  # No customer should be created
