@@ -70,3 +70,20 @@ class OrderSerializer(serializers.ModelSerializer):
             OrderItem.objects.create(order=order, **order_item_data)
 
         return order
+
+
+# to create objects in bulk 
+class BulkOrderSerializer(serializers.ModelSerializer):
+    items = OrderItemSerializer(many=True)
+
+    class Meta:
+        model = Order
+        fields = ['ref_number', 'desc', 'entry_date', 'customer', 'items']
+
+    def create(self, validated_data):
+        items_data = validated_data.pop('items')
+        order = Order.objects.create(**validated_data)
+
+        OrderItem.objects.bulk_create([OrderItem(order=order, **item_data) for item_data in items_data])
+
+        return order 
